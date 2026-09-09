@@ -1,23 +1,4 @@
-"""
-Optimal Binary Search Tree (OBST) using Dynamic Programming
-Design and Analysis of Algorithms Project
-
-This implementation uses successful-search probabilities only.
-
-DP definition:
-    C[i][j] = minimum expected search cost for keys i..j
-
-Recurrence:
-    C[i][j] = min over r in [i..j] of
-              C[i][r-1] + C[r+1][j] + sum(p[i..j])
-
-Empty subtrees have cost 0.
-For one key:
-    C[i][i] = p[i]
-"""
-
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Optional
 import argparse
@@ -37,7 +18,6 @@ class Node:
 
 
 def validate_input(keys: list[int], probabilities: list[float]) -> None:
-    """Validate keys and successful-search probabilities."""
     if not keys:
         raise ValueError("At least one key is required.")
 
@@ -84,17 +64,14 @@ def optimal_bst(
         [None for _ in range(n)] for _ in range(n)
     ]
 
-    # Prefix sums let us compute sum(p[i..j]) in O(1).
     prefix = [0.0] * (n + 1)
     for i, p in enumerate(probabilities):
         prefix[i + 1] = prefix[i] + p
 
-    # Base case: one key.
     for i in range(n):
         cost[i][i] = probabilities[i]
         root_choice[i][i] = i
 
-    # Solve larger intervals bottom-up.
     for length in range(2, n + 1):
         for i in range(n - length + 1):
             j = i + length - 1
@@ -127,7 +104,6 @@ def reconstruct_tree(
     i: int,
     j: int,
 ) -> Optional[Node]:
-    """Reconstruct the optimal tree recursively from the root table."""
     if i > j:
         return None
 
@@ -142,12 +118,6 @@ def reconstruct_tree(
 
 
 def expected_search_cost(root: Optional[Node], level: int = 1) -> float:
-    """
-    Calculate expected comparisons from the actual tree.
-
-    Root is at level 1, so:
-        expected cost = sum(probability * level)
-    """
     if root is None:
         return 0.0
 
@@ -163,7 +133,6 @@ def collect_depths(
     depth: int = 0,
     result: Optional[list[tuple[int, float, int, int]]] = None,
 ) -> list[tuple[int, float, int, int]]:
-    """Return (key, probability, depth, level) for every node."""
     if result is None:
         result = []
 
@@ -177,7 +146,6 @@ def collect_depths(
 
 
 def average_depth(root: Optional[Node]) -> float:
-    """Calculate unweighted average node depth (root depth = 0)."""
     info = collect_depths(root)
     if not info:
         return 0.0
@@ -189,7 +157,6 @@ def print_tree(
     prefix: str = "",
     is_left: bool = True,
 ) -> None:
-    """Display a tree sideways in the terminal."""
     if root is None:
         return
 
@@ -211,7 +178,6 @@ def print_tree(
 
 
 def print_cost_table(keys: list[int], cost: list[list[float]]) -> None:
-    """Print the upper-triangular Dynamic Programming cost table."""
     n = len(keys)
 
     print("\nDYNAMIC PROGRAMMING COST TABLE C[i,j]")
@@ -234,7 +200,6 @@ def print_cost_table(keys: list[int], cost: list[list[float]]) -> None:
 def print_root_table(
     keys: list[int], root_table: list[list[Optional[int]]]
 ) -> None:
-    """Print the root selected for every subproblem."""
     n = len(keys)
 
     print("\nROOT TABLE")
@@ -255,9 +220,7 @@ def print_root_table(
         print()
 
 
-# ---------------------------------------------------------------------------
 # Conventional BST
-# ---------------------------------------------------------------------------
 
 def bst_insert(root: Optional[Node], key: int, probability: float) -> Node:
     """Insert one key using ordinary BST insertion."""
@@ -275,22 +238,13 @@ def bst_insert(root: Optional[Node], key: int, probability: float) -> Node:
 def build_conventional_bst(
     keys: list[int], probabilities: list[float]
 ) -> Optional[Node]:
-    """
-    Build a conventional BST by inserting keys in their supplied order.
-
-    Because the assignment input is sorted, this standard insertion order
-    produces a right-skewed BST. This is useful for showing why arrangement
-    matters.
-    """
     root = None
     for key, probability in zip(keys, probabilities):
         root = bst_insert(root, key, probability)
     return root
 
 
-# ---------------------------------------------------------------------------
 # Display / Analysis
-# ---------------------------------------------------------------------------
 
 def analyze_input(keys: list[int], probabilities: list[float]) -> None:
     """Run and display the complete analysis for one input set."""
@@ -371,9 +325,7 @@ def analyze_input(keys: list[int], probabilities: list[float]) -> None:
     )
 
 
-# ---------------------------------------------------------------------------
 # Experiments
-# ---------------------------------------------------------------------------
 
 def make_random_test_data(
     n: int, rng: random.Random
@@ -392,11 +344,6 @@ def run_experiments(
     sizes: list[int] = [5, 10, 20, 50, 100],
     seed: int = 42,
 ) -> None:
-    """
-    Run OBST experiments for several values of n.
-
-    The output is suitable for copying into the Experimental Results section.
-    """
     rng = random.Random(seed)
 
     print("\nEXPERIMENTAL RESULTS")
